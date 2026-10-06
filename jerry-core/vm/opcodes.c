@@ -772,6 +772,7 @@ opfunc_resume_executable_object (vm_executable_object_t *executable_object_p, /*
     /* All resources are released. */
     executable_object_p->extended_object.u.cls.u2.executable_obj_flags |= ECMA_EXECUTABLE_OBJECT_COMPLETED;
     ecma_deref_if_object (executable_object_p->frame_ctx.this_binding);
+    ecma_deref_if_object (executable_object_p->iterator);
     return result;
   }
 
