@@ -1250,7 +1250,9 @@ typedef struct
 typedef enum
 {
   ECMA_CONTAINER_FLAGS_EMPTY = (0), /** empty flags */
-  ECMA_CONTAINER_FLAGS_WEAK = (1 << 0) /** container object is weak */
+  ECMA_CONTAINER_FLAGS_WEAK = (1 << 0), /** container object is weak */
+  ECMA_CONTAINER_FLAGS_ITERATED = (1 << 1), /** iterator objects may reference the container */
+  ECMA_CONTAINER_FLAGS_FOREACH = (1 << 2), /** forEach is running on the container */
 } ecma_container_flags_t;
 
 /**

@@ -663,6 +663,87 @@ ecma_op_container_set_noramlize_zero (ecma_value_t this_arg) /*< this arg */
   return this_arg;
 } /* ecma_op_container_set_noramlize_zero */
 
+static uint32_t ecma_op_iterator_get_index (ecma_object_t *iter_obj_p);
+static void ecma_op_iterator_set_index (ecma_object_t *iter_obj_p, uint32_t index);
+
+/**
+ * Remove the deleted (empty) entries from the internal buffer, if the buffer is full
+ * and at least half of its entries are deleted.
+ *
+ * Note:
+ *   The index of the live Map/Set iterators of the container is updated accordingly,
+ *   so the iteration order and the set of visited entries are not changed.
+ */
+static void
+ecma_op_internal_buffer_compact (ecma_extended_object_t *map_object_p, /**< map object */
+                                 lit_magic_string_id_t lit_id) /**< class id */
+{
+  ecma_collection_t *container_p = ECMA_GET_INTERNAL_VALUE_POINTER (ecma_collection_t, map_object_p->u.cls.u3.value);
+  uint8_t entry_size = ecma_op_container_entry_size (lit_id);
+  uint32_t entry_count = ECMA_CONTAINER_ENTRY_COUNT (container_p);
+  uint32_t live_count = ECMA_CONTAINER_GET_SIZE (container_p) * entry_size;
+  uint32_t deleted_count = entry_count - live_count;
+
+  if (container_p->item_count + entry_size <= container_p->capacity || deleted_count == 0
+      || deleted_count < live_count || (map_object_p->u.cls.u1.container_flags & ECMA_CONTAINER_FLAGS_FOREACH) != 0)
+  {
+    return;
+  }
+
+  ecma_value_t *start_p = ECMA_CONTAINER_START (container_p);
+
+  if (map_object_p->u.cls.u1.container_flags & ECMA_CONTAINER_FLAGS_ITERATED)
+  {
+    ecma_value_t map_value = ecma_make_object_value ((ecma_object_t *) map_object_p);
+    jmem_cpointer_t obj_iter_cp = JERRY_CONTEXT (ecma_gc_objects_cp);
+
+    map_object_p->u.cls.u1.container_flags &= (uint8_t) ~ECMA_CONTAINER_FLAGS_ITERATED;
+
+    while (obj_iter_cp != JMEM_CP_NULL)
+    {
+      ecma_object_t *obj_iter_p = ECMA_GET_NON_NULL_POINTER (ecma_object_t, obj_iter_cp);
+      obj_iter_cp = obj_iter_p->gc_next_cp;
+
+      if (ecma_is_lexical_environment (obj_iter_p)
+          || (!ecma_object_class_is (obj_iter_p, ECMA_OBJECT_CLASS_MAP_ITERATOR)
+              && !ecma_object_class_is (obj_iter_p, ECMA_OBJECT_CLASS_SET_ITERATOR))
+          || ((ecma_extended_object_t *) obj_iter_p)->u.cls.u3.iterated_value != map_value)
+      {
+        continue;
+      }
+
+      map_object_p->u.cls.u1.container_flags |= ECMA_CONTAINER_FLAGS_ITERATED;
+
+      uint32_t index = ecma_op_iterator_get_index (obj_iter_p);
+      uint32_t new_index = 0;
+
+      for (uint32_t i = 0; i < index && i < entry_count; i += entry_size)
+      {
+        if (!ecma_is_value_empty (start_p[i]))
+        {
+          new_index += entry_size;
+        }
+      }
+
+      ecma_op_iterator_set_index (obj_iter_p, new_index);
+    }
+  }
+
+  uint32_t new_count = 0;
+
+  for (uint32_t i = 0; i < entry_count; i += entry_size)
+  {
+    if (!ecma_is_value_empty (start_p[i]))
+    {
+      memmove (start_p + new_count, start_p + i, entry_size * sizeof (ecma_value_t));
+      new_count += entry_size;
+    }
+  }
+
+  JERRY_ASSERT (new_count == live_count);
+  container_p->item_count = new_count + 1;
+} /* ecma_op_internal_buffer_compact */
+
 /**
  * The generic Map prototype object's 'set' and Set prototype object's 'add' routine
  *
@@ -686,6 +767,7 @@ ecma_op_container_set (ecma_extended_object_t *map_object_p, /**< map object */
 
   if (entry_p == NULL)
   {
+    ecma_op_internal_buffer_compact (map_object_p, lit_id);
     ecma_op_internal_buffer_append (container_p, ecma_op_container_set_noramlize_zero (key_arg), value_arg, lit_id);
 
     if ((map_object_p->u.cls.u1.container_flags & ECMA_CONTAINER_FLAGS_WEAK) != 0)
@@ -728,6 +810,10 @@ ecma_op_container_foreach (ecma_extended_object_t *map_object_p, /**< map object
   ecma_collection_t *container_p = ECMA_GET_INTERNAL_VALUE_POINTER (ecma_collection_t, map_object_p->u.cls.u3.value);
 
   uint8_t entry_size = ecma_op_container_entry_size (lit_id);
+  uint8_t foreach_flag = map_object_p->u.cls.u1.container_flags & ECMA_CONTAINER_FLAGS_FOREACH;
+
+  /* Entry positions must not change while the callback runs. */
+  map_object_p->u.cls.u1.container_flags |= ECMA_CONTAINER_FLAGS_FOREACH;
 
   for (uint32_t i = 0; i < ECMA_CONTAINER_ENTRY_COUNT (container_p); i += entry_size)
   {
@@ -754,6 +840,7 @@ ecma_op_container_foreach (ecma_extended_object_t *map_object_p, /**< map object
     ecma_free_value (call_value);
   }
 
+  map_object_p->u.cls.u1.container_flags &= (uint8_t) ~(ECMA_CONTAINER_FLAGS_FOREACH ^ foreach_flag);
   return ret_value;
 } /* ecma_op_container_foreach */
 
@@ -892,6 +979,9 @@ ecma_op_container_create_iterator (ecma_value_t this_arg, /**< this argument */
                                    ecma_object_class_type_t iterator_type, /**< iterator type */
                                    ecma_iterator_kind_t kind) /**< iterator kind */
 {
+  ecma_extended_object_t *map_object_p = (ecma_extended_object_t *) ecma_get_object_from_value (this_arg);
+  map_object_p->u.cls.u1.container_flags |= ECMA_CONTAINER_FLAGS_ITERATED;
+
   return ecma_op_create_iterator_object (this_arg, ecma_builtin_get (proto_id), iterator_type, kind);
 } /* ecma_op_container_create_iterator */
 
