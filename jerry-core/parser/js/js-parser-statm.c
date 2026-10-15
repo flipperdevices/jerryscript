@@ -2745,7 +2745,7 @@ parser_parse_statements (parser_context_t *context_p) /**< context */
 #if JERRY_PARSER_HALT
     {
       jerry_parser_halt_cb_t parser_stop_cb = JERRY_CONTEXT (parser_stop_cb);
-      void* parser_stop_user_p = JERRY_CONTEXT (parser_stop_user_p);
+      void *parser_stop_user_p = JERRY_CONTEXT (parser_stop_user_p);
       if (parser_stop_cb && parser_stop_cb (parser_stop_user_p))
       {
         parser_raise_error (context_p, PARSER_ERR_INTERRUPTED);

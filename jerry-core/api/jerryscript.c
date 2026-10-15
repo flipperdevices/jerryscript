@@ -519,7 +519,7 @@ jerry_parse_value (const jerry_value_t source, /**< script source */
  */
 void
 jerry_parser_halt_handler (jerry_parser_halt_cb_t callback, /**< periodically called user function */
-                    void *user_p) /**< pointer passed to the function */
+                           void *user_p) /**< pointer passed to the function */
 {
 #if JERRY_PARSER_HALT
   JERRY_CONTEXT (parser_stop_cb) = callback;

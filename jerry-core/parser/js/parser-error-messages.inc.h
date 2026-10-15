@@ -28,8 +28,7 @@ PARSER_ERROR_DEF (PARSER_ERR_SEMICOLON_EXPECTED, "Expected ';' token")
 PARSER_ERROR_DEF (PARSER_ERR_RIGHT_SQUARE_EXPECTED, "Expected ']' token")
 PARSER_ERROR_DEF (PARSER_ERR_LEFT_BRACE_EXPECTED, "Expected '{' token")
 #endif /* JERRY_PARSER */
-#if JERRY_MODULE_SYSTEM \
-|| JERRY_PARSER
+#if JERRY_MODULE_SYSTEM || JERRY_PARSER
 PARSER_ERROR_DEF (PARSER_ERR_RIGHT_BRACE_EXPECTED, "Expected '}' token")
 #endif /* JERRY_MODULE_SYSTEM \
 || JERRY_PARSER */
@@ -51,8 +50,7 @@ PARSER_ERROR_DEF (PARSER_ERR_IN_EXPECTED, "Expected 'in' token")
 PARSER_ERROR_DEF (PARSER_ERR_OF_EXPECTED, "Expected 'of' token")
 PARSER_ERROR_DEF (PARSER_ERR_EXPRESSION_EXPECTED, "Expression expected")
 #endif /* JERRY_PARSER */
-#if JERRY_MODULE_SYSTEM \
-|| JERRY_PARSER
+#if JERRY_MODULE_SYSTEM || JERRY_PARSER
 PARSER_ERROR_DEF (PARSER_ERR_IDENTIFIER_EXPECTED, "Identifier expected")
 #endif /* JERRY_MODULE_SYSTEM \
 || JERRY_PARSER */
@@ -109,8 +107,7 @@ PARSER_ERROR_DEF (PARSER_ERR_FROM_COMMA_EXPECTED, "Expected 'from' or ',' token"
 #if JERRY_MODULE_SYSTEM
 PARSER_ERROR_DEF (PARSER_ERR_EXPORT_NOT_DEFINED, "Export not defined in module")
 #endif /* JERRY_MODULE_SYSTEM */
-#if JERRY_MODULE_SYSTEM \
-|| JERRY_PARSER
+#if JERRY_MODULE_SYSTEM || JERRY_PARSER
 PARSER_ERROR_DEF (PARSER_ERR_VARIABLE_REDECLARED, "Local variable is redeclared")
 #endif /* JERRY_MODULE_SYSTEM \
 || JERRY_PARSER */
@@ -227,10 +224,14 @@ PARSER_ERROR_DEF (PARSER_ERR_CLASS_STATIC_PROTOTYPE, "Classes may not have a sta
 PARSER_ERROR_DEF (PARSER_ERR_INVALID_CLASS_CONSTRUCTOR, "Class constructor may not be a generator or async function")
 PARSER_ERROR_DEF (PARSER_ERR_TEMPLATE_STR_OCTAL_ESCAPE, "Octal escape sequences are not allowed in template strings")
 PARSER_ERROR_DEF (PARSER_ERR_DUPLICATED_PROTO, "Duplicate __proto__ fields are not allowed in object literals")
-PARSER_ERROR_DEF (PARSER_ERR_GENERATOR_IN_SINGLE_STATEMENT_POS, "Generator function cannot appear in a single-statement context")
-PARSER_ERROR_DEF (PARSER_ERR_LEXICAL_SINGLE_STATEMENT, "Lexical declaration cannot appear in a single-statement context")
+PARSER_ERROR_DEF (PARSER_ERR_GENERATOR_IN_SINGLE_STATEMENT_POS,
+                  "Generator function cannot appear in a single-statement context")
+PARSER_ERROR_DEF (PARSER_ERR_LEXICAL_SINGLE_STATEMENT,
+                  "Lexical declaration cannot appear in a single-statement context")
 PARSER_ERROR_DEF (PARSER_ERR_FOR_IN_OF_DECLARATION, "for in-of loop variable declaration may not have an initializer")
 PARSER_ERROR_DEF (PARSER_ERR_FOR_AWAIT_NO_ASYNC, "for-await-of is only allowed inside async functions and generators")
-PARSER_ERROR_DEF (PARSER_ERR_USE_STRICT_NOT_ALLOWED, "The 'use strict' directive is not allowed for functions with non-simple arguments")
-PARSER_ERROR_DEF (PARSER_ERR_ASSIGNMENT_EXPECTED, "Unexpected arrow function or yield expression (parentheses around the expression may help)")
+PARSER_ERROR_DEF (PARSER_ERR_USE_STRICT_NOT_ALLOWED,
+                  "The 'use strict' directive is not allowed for functions with non-simple arguments")
+PARSER_ERROR_DEF (PARSER_ERR_ASSIGNMENT_EXPECTED,
+                  "Unexpected arrow function or yield expression (parentheses around the expression may help)")
 #endif /* JERRY_PARSER */
