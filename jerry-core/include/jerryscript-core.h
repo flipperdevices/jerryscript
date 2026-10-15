@@ -94,6 +94,7 @@ void jerry_register_magic_strings (const jerry_char_t *const *ext_strings_p,
  */
 jerry_value_t jerry_parse (const jerry_char_t *source_p, size_t source_size, const jerry_parse_options_t *options_p);
 jerry_value_t jerry_parse_value (const jerry_value_t source, const jerry_parse_options_t *options_p);
+void jerry_parser_halt_handler (jerry_parser_halt_cb_t callback, void *user_p);
 /**
  * jerry-api-code-parse @}
  */

@@ -514,6 +514,23 @@ jerry_parse_value (const jerry_value_t source, /**< script source */
 } /* jerry_parse_value */
 
 /**
+ * When JERRY_PARSER_HALT is enabled, the callback passed to this function
+ * is periodically called with the user_p argument during parsing.
+ */
+void
+jerry_parser_halt_handler (jerry_parser_halt_cb_t callback, /**< periodically called user function */
+                           void *user_p) /**< pointer passed to the function */
+{
+#if JERRY_PARSER_HALT
+  JERRY_CONTEXT (parser_stop_cb) = callback;
+  JERRY_CONTEXT (parser_stop_user_p) = user_p;
+#else /* !JERRY_PARSER_HALT */
+  JERRY_UNUSED (callback);
+  JERRY_UNUSED (user_p);
+#endif /* JERRY_PARSER_HALT */
+} /* jerry_parser_halt_handler */
+
+/**
  * Run a Script or Module created by jerry_parse.
  *
  * Note:
