@@ -534,6 +534,16 @@ typedef void (*jerry_error_object_created_cb_t) (const jerry_value_t error_objec
 typedef jerry_value_t (*jerry_halt_cb_t) (void *user_data_p);
 
 /**
+ * Callback which tells whether parsing should be stopped.
+ *
+ * As long as the function returns false the parsing continues.
+ * When true is returned the parsing stops and error is returned.
+ *
+ * @param user_data_p: optional user data pointer
+ */
+typedef bool (*jerry_parser_halt_cb_t) (void *user_data_p);
+
+/**
  * Callback function which is called when an exception is thrown in an ECMAScript code.
  * The callback should not change the exception_value. The callback is not called again
  * until the value is caught.
@@ -1166,6 +1176,7 @@ void jerry_register_magic_strings (const jerry_char_t *const *ext_strings_p,
  */
 jerry_value_t jerry_parse (const jerry_char_t *source_p, size_t source_size, const jerry_parse_options_t *options_p);
 jerry_value_t jerry_parse_value (const jerry_value_t source, const jerry_parse_options_t *options_p);
+void jerry_parser_halt_handler (jerry_parser_halt_cb_t callback, void *user_p);
 /**
  * jerry-api-code-parse @}
  */

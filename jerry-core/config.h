@@ -441,6 +441,17 @@
 #endif /* !defined (JERRY_VALGRIND) */
 
 /**
+ * Enable/Disable the parser stop callback function.
+ *
+ * Allowed values:
+ *  0: Disable parser stop callback support.
+ *  1: Enable parser stop callback support.
+ */
+#ifndef JERRY_PARSER_HALT
+#define JERRY_PARSER_HALT 0
+#endif /* !defined (JERRY_PARSER_HALT) */
+
+/**
  * Enable/Disable the vm execution stop callback function.
  *
  * Allowed values:

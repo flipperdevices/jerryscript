@@ -203,6 +203,12 @@ struct jerry_context_t
                                                  *   ECMAScript execution should be stopped */
 #endif /* JERRY_VM_HALT */
 
+#if JERRY_PARSER_HALT
+  void *parser_stop_user_p; /**< user pointer for parser_stop_cb */
+  jerry_parser_halt_cb_t parser_stop_cb; /**< user function which returns whether the
+                                           *   parsing should be stopped */
+#endif /* JERRY_PARSER_HALT */
+
 #if JERRY_VM_THROW
   void *vm_throw_callback_user_p; /**< user pointer for vm_throw_callback_p */
   jerry_throw_cb_t vm_throw_callback_p; /**< callback for capturing throws */
